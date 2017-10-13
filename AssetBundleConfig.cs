@@ -28,6 +28,7 @@ namespace HyperGames.AssetBundles {
     }
     
     [CreateAssetMenu(menuName = "Asset Bundle Config", fileName = "AssetBundleConfig.asset")]
+    [Serializable]
     public class AssetBundleConfig : ScriptableObject {
 
         public const string ONE_X     = "1x";

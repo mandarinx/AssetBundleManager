@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
@@ -7,30 +6,37 @@ using Debug = UnityEngine.Debug;
 
 namespace HyperGames.AssetBundles {
 
-    public class AssetBundleManager {
+    public class AssetBundleManager : ILoadOpHandler {
 
-        private readonly BundleLoader[]                      loaders;
+        private readonly BundleLoader                        loader;
         private readonly AssetBundleCache                    cache;
         private readonly ObjectPool<BundleLoadOperation>     loadOps;
         private readonly BundleManagerUpdate                 updater;
+        private readonly AssetBundleConfig                   config;
+        private readonly List<Coroutine>                     streams;
+        private int                                          freeStreams;
+        private readonly Dictionary<string, Action<string>>  loadHandlers;
         private AssetBundleManifest                          manifest;
         private Action<string[]>                             onManifestLoaded = str => { };
         private Action<List<string>>                         onLoadBundles = str => { };
         
         public AssetBundleManager(AssetBundleConfig cfg, GameObject owner) {
+            config = cfg;
+            freeStreams = config.numBundleLoaders;
+            
+            streams = new List<Coroutine>();
+            loadHandlers = new Dictionary<string, Action<string>>();
+            
             cache = new AssetBundleCache();
-            loaders = new BundleLoader[cfg.numBundleLoaders];
+            loader = owner.AddComponent<BundleLoader>();
             
             updater = owner.AddComponent<BundleManagerUpdate>();
             updater.Init(this);
-            
-            loadOps = new ObjectPool<BundleLoadOperation>(16, true);
-            loadOps.Fill();
 
-            for (int i = 0; i < loaders.Length; ++i) {
-                loaders[i] = owner.AddComponent<BundleLoader>();
-                loaders[i].Init(cfg);
-            }
+            loadOps = new ObjectPool<BundleLoadOperation>(16, true) {
+                OnInstantiate = () => new BundleLoadOperation(this)
+            };
+            loadOps.Fill();
 
             // check cfg.bundleTarget and start local server if necessary.
         }
@@ -41,109 +47,87 @@ namespace HyperGames.AssetBundles {
         }
 
         public void Update() {
-            if (loadOps.numSpawned == 0) {
-                updater.Deactivate();
-                return;
-            }
-            StartNextLoadOperation();
-        }
-
-        public IEnumerator LoadMasterManifest() {
-            BundleLoadOperation loadOp;
-            loadOps.Spawn(out loadOp);
-
-            loadOp.Init(BundlesHelper.GetPlatformName());
-            
-            BundleLoader loader;
-            if (!TryGetBundleLoader(out loader)) {
-                yield break;
-            }
-            yield return loadOp.Load(loader);
-            
-            cache.Add(loadOp.loadedBundle.name, loadOp.loadedBundle.bundle);
-            OnManifestLoaded(loadOp);
-        }
-
-        public void LoadMasterManifest(Action callback) {
-            if (manifest != null) {
-                Log("Manifest is already loaded");
+            if (freeStreams == 0) {
                 return;
             }
             
-            Action<BundleLoadOperation> opCallback = op => {
-                OnManifestLoaded(op);
-                callback();
-            };
-            
-            Log("Load Manifest for "+BundlesHelper.GetPlatformName());
-            BundleLoadOperation loadOp;
-            loadOps.Spawn(out loadOp);
-            Log("Got LoadOp "+(loadOps.numSpawned - 1));
-            loadOp.Init(opCallback, OnBundleLoaded, BundlesHelper.GetPlatformName());
-            
-            updater.Activate();
-        }
-
-        public IEnumerator LoadBundle(string bundleName) {
-            if (manifest == null) {
-                LogError(
-                    "Cannot load bundle "+bundleName+". "+
-                    "Master manifest is not loaded. "+
-                    "Call AssetBundleManager.Init() to resolve the issue.");
-                yield break;
-            }
-
-            // check bundle cache
-
-            List<string> bundleNames = new List<string>();
-            bundleNames.AddRange(manifest.GetAllDependencies(bundleName));
-            bundleNames.Add(bundleName);
-
-            onLoadBundles(bundleNames);
-
-            BundleLoadOperation loadOp;
-            loadOps.Spawn(out loadOp);
-            loadOp.Init(bundleNames);
-            
-            while (loadOp.curBundle < loadOp.numBundles) {
-                BundleLoader loader;
-                if (!TryGetBundleLoader(out loader)) {
-                    yield break;
+            for (int i=0; i<loadOps.numSpawned; ++i) {
+                BundleLoadOperation op = loadOps.GetInstance(i);
+                
+                // This prevents the manager from loading bundles from a single loadop in parallell
+                // Should check number of bundles left to load.
+                // A LoadOp is not necessarily done just because there are no mor bundles to load.
+                //if (op.bundlesLeftToLoad == 0) {
+                //    continue;
+                //}
+                if (op.bundlesLeftToLoad == 0) {
+                    continue;
                 }
-                yield return loadOp.Load(loader);
-                BundleLoadOperation.LoadedBundle loaded = loadOp.loadedBundle;
-                cache.Add(loaded.name, loaded.bundle);
+
+                if (freeStreams == 0) {
+                    return;
+                }
+
+//                Debug.Log("LoadOp "+i+" is ready");
+                
+                ITransporter transporter = BundlesHelper.GetTransporter(config);
+//                Debug.Log("Got transporter "+transporter.GetType());
+                string path = BundlesHelper.GetPath(config, BundlesHelper.GetPlatformName());
+                streams.Add(loader.StartCoroutine(transporter.Load(op, streams.Count, path)));
+                --freeStreams;
+//                Debug.Log("Started loading stream. Streams: "+streams.Count+" free streams: "+freeStreams);
             }
-            loadOps.Despawn(loadOp);
         }
 
-        public void LoadBundle(string bundleName, Action<string, AssetBundleManager> callback) {
-            if (manifest == null) {
-                LogError(
-                    "Cannot load bundle "+bundleName+". "+
-                    "Master manifest is not loaded. "+
-                    "Call AssetBundleManager.Init() to resolve the issue.");
-                return;
-            }
-
-            // check bundle cache
-            
+        public AssetBundleLoadStatus LoadMasterManifest() {
+            string bundleName = BundlesHelper.GetPlatformName();
+            Debug.Log("Load manifest "+bundleName);
+            loadHandlers.Add(bundleName, OnMasterManifestLoaded);
+            BundleLoadOperation loadOp = AddLoadOp(bundleName);
+            return new AssetBundleLoadStatus(loadOp);
+        }
+        
+        public AssetBundleLoadStatus LoadBundle(string bundleName) {
             List<string> bundleNames = new List<string>();
             bundleNames.AddRange(manifest.GetAllDependencies(bundleName));
             bundleNames.Add(bundleName);
-            
+
             onLoadBundles(bundleNames);
-            
-            Action<BundleLoadOperation> opCallback = op => {
-                OnLoadOperationDone(op);
-                callback(bundleName, this);
-            };
-            
-            BundleLoadOperation loadOp;
-            loadOps.Spawn(out loadOp);
-            loadOp.Init(opCallback, OnBundleLoaded, bundleNames);
-            
-            updater.Activate();
+
+            BundleLoadOperation loadOp = AddLoadOp(bundleNames);
+            return new AssetBundleLoadStatus(loadOp);
+        }
+
+        public void OnBundleLoaded(string bundleName, AssetBundle bundle, int streamIndex) {
+            Debug.Log("Asset Bundle "+bundleName+" loaded");
+            cache.Add(bundleName, bundle);
+            ++freeStreams;
+            Debug.Log("Free streams: "+freeStreams);
+            loader.StopCoroutine(streams[streamIndex]);
+//            Debug.Log("Stopped stream "+streamIndex);
+
+            Action<string> loadHandler;
+            if (loadHandlers.TryGetValue(bundleName, out loadHandler)) {
+                loadHandler(bundleName);
+            }
+        }
+
+        public void OnLoadOpComplete(BundleLoadOperation op) {
+            Debug.Log("LoadOp complete");
+            loadOps.Despawn(op);
+            if (loadOps.numSpawned > 0) {
+                return;
+            }
+            Debug.Log("All LoadOps complete. Deactivate updater, stop all coroutines and clear the streams");
+            updater.Deactivate();
+            loader.StopAllCoroutines();
+            streams.Clear();
+//            Debug.Log("Cleared all streams: "+streams.Count);
+        }
+
+        public void OnBundleFailed(int streamIndex) {
+            // Would be a good place to implement retries
+            loader.StopCoroutine(streams[streamIndex]);
         }
 
         public T GetAsset<T>(string bundleName, string assetName) where T : UnityEngine.Object {
@@ -152,64 +136,34 @@ namespace HyperGames.AssetBundles {
                 ? bundle.LoadAsset<T>(assetName)
                 : default(T);
         }
-            
-        private void StartNextLoadOperation() {
-            Log("Start next loadop");
-            for (int i=0; i<loaders.Length; ++i) {
-                BundleLoader loader = loaders[i];
-                if (loader.isLoading) {
-                    continue;
-                }
-                
-                Log("Got loader "+i);
-                BundleLoadOperation op = null;
-                if (TryGetLoadOperation(out op)) {
-                    op.LoadAsync(loader);
-                }
+
+        private BundleLoadOperation AddLoadOp(string bundle) {
+            return AddLoadOp(new List<string> { bundle });
+        }
+        
+        private BundleLoadOperation AddLoadOp(List<string> bundles) {
+            BundleLoadOperation op;
+            loadOps.Spawn(out op);
+            op.Init(bundles);
+
+            string bundleList = "";
+            for (int i = 0; i < bundles.Count; ++i) {
+                bundleList += bundles[i] + "\n";
             }
+            
+            Debug.Log("Spawned LoadOp with bundles:\n"+bundleList);
+            
+            updater.Activate();
+            return op;
         }
 
-        private bool TryGetBundleLoader(out BundleLoader loader) {
-            for (int i=0; i<loaders.Length; ++i) {
-                if (loaders[i].isLoading) {
-                    continue;
-                }
-                loader = loaders[i];
-                return true;
-            }
-            loader = null;
-            return false;
-        }
-            
-        private bool TryGetLoadOperation(out BundleLoadOperation op) {
-            for (int i=0; i<loadOps.numSpawned; ++i) {
-                op = loadOps.GetInstance(i);
-                Log("loadop "+i+" done: "+op.done+" active: "+op.active);
-                if (op.active) {
-                    return true;
-                }
-            }
-            op = null;
-            return false;
-        }
-
-        private void OnBundleLoaded(BundleLoadOperation.LoadedBundle loaded) {
-            Log("OnBundleLoaded : Add "+loaded.name+" to cache");
-            cache.Add(loaded.name, loaded.bundle);
-        }
-            
-        private void OnLoadOperationDone(BundleLoadOperation op) {
-            Log("OnLoadOperationDone : Despawn LoadOp");
-            loadOps.Despawn(op);
-        }
-
-        private void OnManifestLoaded(BundleLoadOperation op) {
-            Debug.Log("OnManifestLoaded");
-            loadOps.Despawn(op);
+        private void OnMasterManifestLoaded(string bundleName) {
+            Debug.Log("OnMasterManifestLoaded");
+            loadHandlers.Remove(bundleName);
             AssetBundle bundle;
-            cache.TryGetBundle(op.loadedBundle.name, out bundle);
+            cache.TryGetBundle(bundleName, out bundle);
             manifest = bundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
-            Debug.Log("Manifest: "+manifest);
+//            Debug.Log("Manifest: "+manifest);
 
             onManifestLoaded(manifest.GetAllAssetBundlesWithVariant());
         }
