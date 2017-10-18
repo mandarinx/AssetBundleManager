@@ -44,6 +44,25 @@ namespace HyperGames.AssetBundles {
             variantRemappers.Add(variantName, resolver);
         }
 
+        public string RemapVariant(string bundleName) {
+            string[] nameParts = bundleName.Split('.');
+            if (nameParts.Length == 1) {
+                // bundle name has no variant
+                return bundleName;
+            }
+                
+            #if UNITY_EDITOR
+            return nameParts[0] + "." + config.editorResolutionVariant;
+            #else 
+            // Use the bundle name without the variant to look up the
+            // remapping function.
+            Func<string> Remapper;
+            return variantMap.TryGetValue(nameParts[0], out Remapper)
+                ? nameParts[0] + "." + Remapper()
+                : nameParts[0];
+            #endif
+        }
+
         // Used as callback for AssetBundleManager's internal onLoadBundle callback.
         // Gets a list of the asset bundles to load, and remaps the variants according
         // to the config.
@@ -54,22 +73,7 @@ namespace HyperGames.AssetBundles {
 //            }
             
             for (int i = 0; i < bundleNames.Count; ++i) {
-                string[] nameParts = bundleNames[i].Split('.');
-                if (nameParts.Length == 1) {
-                    // bundle name has no variant
-                    continue;
-                }
-                
-                #if UNITY_EDITOR
-                bundleNames[i] = nameParts[0] + "." + config.editorResolutionVariant;
-                #else 
-                // Use the bundle name without the variant to look up the
-                // remapping function.
-                Func<string> Remapper;
-                bundleNames[i] = variantMap.TryGetValue(nameParts[0], out Remapper)
-                    ? nameParts[0] + "." + Remapper()
-                    : nameParts[0];
-                #endif
+                bundleNames[i] = RemapVariant(bundleNames[i]);
             }
 
 //            Debug.Log("After remapping:");

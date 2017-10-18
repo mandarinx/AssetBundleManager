@@ -20,6 +20,7 @@ namespace HyperGames.AssetBundles {
         private AssetBundleManifest                          manifest;
         private Action<string[]>                             onManifestLoaded = str => { };
         private Action<List<string>>                         onLoadBundles = str => { };
+        private Func<string, string>                         onLoadBundle = str => str;
         
         public AssetBundleManager(AssetBundleConfig cfg, GameObject owner) {
             config = cfg;
@@ -45,6 +46,7 @@ namespace HyperGames.AssetBundles {
         public void AddVariantsResolver(VariantsResolver resolver) {
             onManifestLoaded = resolver.RegisterBundles;
             onLoadBundles = resolver.RemapVariants;
+            onLoadBundle = resolver.RemapVariant;
         }
 
         public void Update() {
@@ -150,11 +152,15 @@ namespace HyperGames.AssetBundles {
             streams.Clear();
         }
 
-        public T GetAsset<T>(string bundleName, string assetName) where T : UnityEngine.Object {
+        public bool GetAsset<T>(string bundleName, string assetName, out T asset) where T : UnityEngine.Object {
             AssetBundle bundle;
-            return cache.TryGetBundle(bundleName, out bundle)
-                ? bundle.LoadAsset<T>(assetName)
-                : default(T);
+            
+            if (!cache.TryGetBundle(onLoadBundle(bundleName), out bundle)) {
+                asset = null;
+                return false;
+            }
+            asset = bundle.LoadAsset<T>(assetName);
+            return asset != null;
         }
 
         private BundleLoadOperation AddLoadOp(string bundle) {
