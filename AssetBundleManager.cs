@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
@@ -60,7 +61,7 @@ namespace HyperGames.AssetBundles {
                 //if (op.bundlesLeftToLoad == 0) {
                 //    continue;
                 //}
-                if (op.bundlesLeftToLoad == 0) {
+                if (!op.canLoadBundle) {
                     continue;
                 }
 
@@ -68,12 +69,15 @@ namespace HyperGames.AssetBundles {
                     return;
                 }
 
+//                Debug.Log("LoadOp "+i+" has "+op.bundlesLeftToLoad+" bundles left to load");
 //                Debug.Log("LoadOp "+i+" is ready");
                 
                 ITransporter transporter = BundlesHelper.GetTransporter(config);
 //                Debug.Log("Got transporter "+transporter.GetType());
+//                Debug.Log("Start transporter on stream "+streams.Count);
                 string path = BundlesHelper.GetPath(config, BundlesHelper.GetPlatformName());
                 streams.Add(loader.StartCoroutine(transporter.Load(op, streams.Count, path)));
+//                Debug.Log("Streams: "+streams.Count);
                 --freeStreams;
 //                Debug.Log("Started loading stream. Streams: "+streams.Count+" free streams: "+freeStreams);
             }
@@ -81,7 +85,6 @@ namespace HyperGames.AssetBundles {
 
         public AssetBundleLoadStatus LoadMasterManifest() {
             string bundleName = BundlesHelper.GetPlatformName();
-            Debug.Log("Load manifest "+bundleName);
             loadHandlers.Add(bundleName, OnMasterManifestLoaded);
             BundleLoadOperation loadOp = AddLoadOp(bundleName);
             return new AssetBundleLoadStatus(loadOp);
@@ -98,11 +101,11 @@ namespace HyperGames.AssetBundles {
             return new AssetBundleLoadStatus(loadOp);
         }
 
-        public void OnBundleLoaded(string bundleName, AssetBundle bundle, int streamIndex) {
-            Debug.Log("Asset Bundle "+bundleName+" loaded");
+        public void OnBundleLoaded(string bundleName, int streamIndex, AssetBundle bundle) {
+            Debug.Log("[ABM] OnBundleLoaded, bundle: "+bundleName+", stream: "+streamIndex);
             cache.Add(bundleName, bundle);
             ++freeStreams;
-            Debug.Log("Free streams: "+freeStreams);
+//            Debug.Log("Free streams: "+freeStreams);
             loader.StopCoroutine(streams[streamIndex]);
 //            Debug.Log("Stopped stream "+streamIndex);
 
@@ -112,22 +115,39 @@ namespace HyperGames.AssetBundles {
             }
         }
 
+        public void OnBundleFailed(int streamIndex, int retries) {
+            Debug.Log("[ABM] OnBundleFailed, stream: "+streamIndex);
+            if (retries < 3) {
+                //start a new load
+            }
+            ++freeStreams;
+            loader.StopCoroutine(streams[streamIndex]);
+        }
+
         public void OnLoadOpComplete(BundleLoadOperation op) {
-            Debug.Log("LoadOp complete");
+            Debug.Log("[ABM] OnLoadOpComplete");
             loadOps.Despawn(op);
             if (loadOps.numSpawned > 0) {
                 return;
             }
-            Debug.Log("All LoadOps complete. Deactivate updater, stop all coroutines and clear the streams");
+            Debug.Log("[ABM] All LoadOps complete");
             updater.Deactivate();
             loader.StopAllCoroutines();
             streams.Clear();
 //            Debug.Log("Cleared all streams: "+streams.Count);
         }
 
-        public void OnBundleFailed(int streamIndex) {
-            // Would be a good place to implement retries
-            loader.StopCoroutine(streams[streamIndex]);
+        public void OnLoadOpFailed(BundleLoadOperation op) {
+            Debug.Log("[ABM] OnLoadOpFailed");
+            Debug.Log("[ABM] error: "+op.error+" msg: "+op.errorMsg);
+            loadOps.Despawn(op);
+            if (loadOps.numSpawned > 0) {
+                return;
+            }
+            Debug.Log("[ABM] All LoadOps complete");
+            updater.Deactivate();
+            loader.StopAllCoroutines();
+            streams.Clear();
         }
 
         public T GetAsset<T>(string bundleName, string assetName) where T : UnityEngine.Object {

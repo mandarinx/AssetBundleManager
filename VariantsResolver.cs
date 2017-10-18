@@ -4,7 +4,9 @@ using System.Text;
 using UnityEngine;
 
 namespace HyperGames.AssetBundles {
-
+    
+    // Instead of using partial, could I use the plugin system instead?
+    
     // Made partial so that you can append game specific custom code to it without
     // having to add yet another class to the namespace
     
@@ -46,10 +48,10 @@ namespace HyperGames.AssetBundles {
         // Gets a list of the asset bundles to load, and remaps the variants according
         // to the config.
         public void RemapVariants(List<string> bundleNames) {
-            Debug.Log("Before remapping:");
-            for (int i = 0; i < bundleNames.Count; ++i) {
-                Debug.Log(bundleNames[i]);
-            }
+//            Debug.Log("Before remapping:");
+//            for (int i = 0; i < bundleNames.Count; ++i) {
+//                Debug.Log(bundleNames[i]);
+//            }
             
             for (int i = 0; i < bundleNames.Count; ++i) {
                 string[] nameParts = bundleNames[i].Split('.');
@@ -66,10 +68,10 @@ namespace HyperGames.AssetBundles {
                     : nameParts[0];
             }
 
-            Debug.Log("After remapping:");
-            for (int i = 0; i < bundleNames.Count; ++i) {
-                Debug.Log(bundleNames[i]);
-            }
+//            Debug.Log("After remapping:");
+//            for (int i = 0; i < bundleNames.Count; ++i) {
+//                Debug.Log(bundleNames[i]);
+//            }
         }
 
         // Registers bundles in a variantMap for quick lookup during remapping.

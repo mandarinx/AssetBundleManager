@@ -34,9 +34,11 @@ namespace HyperGames.AssetBundles {
         public const string ONE_X     = "1x";
         public const string TWO_X     = "2x";
         public const string FOUR_X    = "4x";
-        public const string SIX_X     = "6x";
         public const string EIGHT_X   = "8x";
-        public const string TEN_X     = "10x";
+
+        public static readonly string[] VARIANTS = {
+            ONE_X, TWO_X, FOUR_X, EIGHT_X
+        };
 
         public const int defaultBaseDPI = 160;
         
@@ -50,8 +52,8 @@ namespace HyperGames.AssetBundles {
         
         public List<ResolutionVariant> resolutionVariants = new List<ResolutionVariant> {
             new ResolutionVariant { name = ONE_X,  maxDP = 1 },
-            new ResolutionVariant { name = TWO_X,  maxDP = 3 },
-            new ResolutionVariant { name = FOUR_X, maxDP = 10 },
+            new ResolutionVariant { name = TWO_X,  maxDP = 2 },
+            new ResolutionVariant { name = FOUR_X, maxDP = 4 },
         };
 
         // Used during integration testing
