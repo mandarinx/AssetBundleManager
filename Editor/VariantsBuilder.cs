@@ -221,8 +221,8 @@ public static class VariantsBuilder {
                 string targetDir = variantDir + "/" + assetParts[assetParts.Length - 1];
                 newAssetPaths[a] = targetDir;
                 Debug.Log("Move: "+asset+" to: "+targetDir);
-                AssetDatabase.CopyAsset(asset, targetDir);
-//                AssetDatabase.MoveAsset(asset, targetDir);
+//                AssetDatabase.CopyAsset(asset, targetDir);
+                AssetDatabase.MoveAsset(asset, targetDir);
                 AssetDatabase.Refresh();
                 
                 // remove assetbundle data. Let parent folder handle asset bundle info
@@ -323,11 +323,11 @@ public static class VariantsBuilder {
 
 //        AssetDatabase.StopAssetEditing();
         
-//        foreach (string variantPath in variantPathIndex) {
-//            Debug.Log("Remove Asset Bundle info from: "+variantPath);
-//            AssetImporter importer = AssetImporter.GetAtPath(variantPath);
-//            importer.SetAssetBundleNameAndVariant(null, null);
-//        }
+        foreach (string variantPath in variantPathIndex) {
+            Debug.Log("Remove Asset Bundle info from: "+variantPath);
+            AssetImporter importer = AssetImporter.GetAtPath(variantPath);
+            importer.SetAssetBundleNameAndVariant(null, null);
+        }
     }
 
     private static void SetAssetBundleNameAndVariant(string path, string name, string variant) {
