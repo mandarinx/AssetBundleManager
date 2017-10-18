@@ -24,6 +24,11 @@ namespace HyperGames.AssetBundles {
             yield return null;
             
             UnityWebRequest request = UnityWebRequest.GetAssetBundle(path + bundleName);
+            // Cloud Build will throw an error for this line.
+            // warning CS0618: `UnityEngine.Networking.UnityWebRequest.Send()' is obsolete: 
+            // `Use SendWebRequest. It returns a UnityWebRequestAsyncOperation which contains 
+            // a reference to the WebRequest object.'
+            // For some reason, Rider won't accept SendWebRequest as a valid method. 
             request.Send();
             
             while (!request.isDone) {
