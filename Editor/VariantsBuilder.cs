@@ -137,8 +137,6 @@ public static class VariantsBuilder {
             }
         }
         AssetDatabase.Refresh();
-
-        bool variantsFound = false;
         
         // Get all directories with a screen res variant
         List<string> variantPathIndex = new List<string>();
@@ -187,8 +185,6 @@ public static class VariantsBuilder {
             string variantDir = "Assets" + variantPath.Substring(Application.dataPath.Length);
 
             Debug.Log("Bundle: "+bundleNames[i]+" has variant: "+bundleVariant);
-            
-            variantsFound = true;
 
             // Create a subdir for bundles with screen res variants
             // Will this work for bundles with a slash in the name?
