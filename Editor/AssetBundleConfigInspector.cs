@@ -118,6 +118,11 @@ public class AssetBundleConfigInspector : Editor {
             }
         }
 
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("editorResolutionVariant"));
+        EditorGUILayout.HelpBox(
+            "When in editor, override the screen resolution variants with this variant.", 
+            MessageType.None);
+
         if (GUI.changed) {
             serializedObject.ApplyModifiedProperties();
         }

@@ -60,12 +60,16 @@ namespace HyperGames.AssetBundles {
                     continue;
                 }
                 
+                #if UNITY_EDITOR
+                bundleNames[i] = nameParts[0] + "." + config.editorResolutionVariant;
+                #else 
                 // Use the bundle name without the variant to look up the
                 // remapping function.
                 Func<string> Remapper;
                 bundleNames[i] = variantMap.TryGetValue(nameParts[0], out Remapper)
                     ? nameParts[0] + "." + Remapper()
                     : nameParts[0];
+                #endif
             }
 
 //            Debug.Log("After remapping:");

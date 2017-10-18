@@ -56,6 +56,8 @@ namespace HyperGames.AssetBundles {
             new ResolutionVariant { name = FOUR_X, maxDP = 4 },
         };
 
+        public string editorResolutionVariant;
+        
         // Used during integration testing
         public bool isTestingIntegration = false;
     }
