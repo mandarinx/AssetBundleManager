@@ -79,26 +79,27 @@ public static class VariantsBuilder {
     [MenuItem("Dev/Build Variants")]
     public static void BuildVariants() {
 
-        const string configPath = "Assets/AssetBundleConfig.asset";
+        const string configPath = "Assets/AssetBundleConfig.json";
         string bundlesRoot = Application.dataPath + "/__BUNDLES__";
 
         AssetDatabase.StartAssetEditing();
 
         // Load the AssetBundleConfig
         Debug.Log("[BV] Does "+
-            Application.dataPath+"/AssetBundleConfig.asset"+
+            Application.dataPath+"/AssetBundleConfig.json"+
             " exist? "+
-            (File.Exists(Application.dataPath+"/AssetBundleConfig.asset") ? "Yes" : "No"));
+            (File.Exists(Application.dataPath+"/AssetBundleConfig.json") ? "Yes" : "No"));
 
-        string[] configs = AssetDatabase.FindAssets("t:AssetBundleConfig");
-        Debug.Log("[BV] Found "+configs.Length+" AssetBundleConfig files");
-        foreach (string c in configs) {
-            Debug.Log("[BV] config: "+c);
+        TextAsset configAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(configPath);
+        if (configAsset == null) {
+            Debug.LogError("[BV] Cannot load AssetBundleConfig from " + configPath);
+            return;
         }
 
-        AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
+        AssetBundleConfig config = JsonUtility.FromJson<AssetBundleConfig>(configAsset.text);
+        
         if (config == null) {
-            Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
+            Debug.LogError("[BV] Cannot deserialize AssetBundleConfig from json.");
             return;
         }
 
