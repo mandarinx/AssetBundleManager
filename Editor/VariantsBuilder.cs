@@ -93,14 +93,31 @@ public static class VariantsBuilder {
         string[] configs = AssetDatabase.FindAssets("t:AssetBundleConfig");
         Debug.Log("[BV] Found "+configs.Length+" AssetBundleConfig files");
         foreach (string c in configs) {
-            Debug.Log("[BV] config: "+c);
+            Debug.Log("[BV] config: "+AssetDatabase.GUIDToAssetPath(c));
         }
 
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
         if (config == null) {
             Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
-            return;
+//            return;
         }
+
+        AssetBundleConfig config2 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(Application.dataPath+"/AssetBundleConfig.asset");
+        if (config2 == null) {
+            Debug.Log("[BV] Cannot load AssetBundleConfig from " + Application.dataPath+"/AssetBundleConfig.asset");
+        }
+
+        AssetBundleConfig config3 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>("Assets/Resources/AssetBundleConfig.asset");
+        if (config3 == null) {
+            Debug.Log("[BV] Cannot load AssetBundleConfig from " + "Assets/Resources/AssetBundleConfig.asset");
+//            return;
+        }
+
+        AssetBundleConfig config4 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(Application.dataPath+"/Resources/AssetBundleConfig.asset");
+        if (config4 == null) {
+            Debug.Log("[BV] Cannot load AssetBundleConfig from " + Application.dataPath+"/Resources/AssetBundleConfig.asset");
+        }
+        return;
 
         // Sort the resolution variants.
         // It doesn't matter if they are sorted in the asset, they should be anyway.
