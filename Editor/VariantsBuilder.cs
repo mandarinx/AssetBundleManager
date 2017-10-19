@@ -85,7 +85,7 @@ public static class VariantsBuilder {
         // Load the AssetBundleConfig
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
         if (config == null) {
-            Debug.Log("Cannot load AssetBundleConfig from " + configPath);
+            Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
             return;
         }
 
@@ -94,51 +94,54 @@ public static class VariantsBuilder {
         config.resolutionVariants.Sort(new ResolutionVariantComparer());
 
         // Validate defined resolutionVariants with asset bundles
+        Debug.Log("[BV] Validate resolutionVariants");
         string[] allBundles = AssetDatabase.GetAllAssetBundleNames();
         foreach (string bundle in allBundles) {
             string ext = bundle.Substring(bundle.Length - 3);
-            Debug.Log(" > bundle: "+bundle+" ext: "+ext);
+            Debug.Log("[BV] Bundle: "+bundle+" ext: "+ext);
             if (ext[0] != '.') {
                 continue;
             }
             string variant = ext.Substring(1);
-            Debug.Log("Variant: "+variant);
+            Debug.Log("[BV] Variant: "+variant);
             
             bool found = false;
             foreach (ResolutionVariant rv in config.resolutionVariants) {
                 found |= rv.name == variant;
             }
-            Debug.Log("Found variant? "+found);
+            Debug.Log("[BV] Found variant? "+found);
             if (found) {
                 continue;
             }
-            Debug.LogWarning("Variant "+variant+" cannot be found in AssetBundleConfig's resolutionVariants");
+            Debug.LogWarning("[BV] Variant "+variant+" cannot be found in AssetBundleConfig's resolutionVariants");
             return;
         }
 
+        Debug.Log("[BV] Clear "+bundlesRoot+" directory");
         // Create directory for storing screen res variant bundles
         if (!Directory.Exists(bundlesRoot)) {
-            Debug.Log("Create directory for bundles root: " + bundlesRoot);
+            Debug.Log("[BV] Create directory: " + bundlesRoot);
             Directory.CreateDirectory(bundlesRoot);
         } else {
-            Debug.Log("Empty directory for bundles root: " + bundlesRoot);
+            Debug.Log("[BV] Empty directory: " + bundlesRoot);
             DirectoryInfo di = new DirectoryInfo(bundlesRoot);
 
             foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories)) {
-                Debug.Log("> Delete file: "+file.Name);
+                Debug.Log("[BV] Delete file: "+file.Name);
                 file.Delete(); 
             }
             foreach (DirectoryInfo dir in di.GetDirectories("*", SearchOption.AllDirectories)) {
                 if (!Directory.Exists(dir.FullName)) {
                     continue;
                 }
-                Debug.Log("> Delete dir: "+dir.Name);
+                Debug.Log("[BV] Delete dir: "+dir.Name);
                 dir.Delete(true); 
             }
         }
         AssetDatabase.Refresh();
         
         // Get all directories with a screen res variant
+        Debug.Log("[BV] Get all directories with a screen res variant");
         List<string> variantPathIndex = new List<string>();
         string[] directories = Directory.GetDirectories(Application.dataPath, "*", SearchOption.AllDirectories);
         
@@ -154,7 +157,7 @@ public static class VariantsBuilder {
                 continue;
             }
 
-            Debug.Log("Add variant dir to variantPathIndex. "+dir);
+            Debug.Log("[BV] Add variant dir to variantPathIndex. "+dir);
             variantPathIndex.Add(dir);
         }
 
@@ -184,30 +187,30 @@ public static class VariantsBuilder {
             string variantPath = bundlePath + "/" + bundleVariant;
             string variantDir = "Assets" + variantPath.Substring(Application.dataPath.Length);
 
-            Debug.Log("Bundle: "+bundleNames[i]+" has variant: "+bundleVariant);
+            Debug.Log("[BV] Bundle: "+bundleNames[i]+" has variant: "+bundleVariant);
 
             // Create a subdir for bundles with screen res variants
             // Will this work for bundles with a slash in the name?
             if (!Directory.Exists(bundlePath)) {
-                Debug.Log("Create directory for bundle at: "+bundlePath);
+                Debug.Log("[BV] Create directory for bundle at: "+bundlePath);
                 Directory.CreateDirectory(bundlePath);
                 AssetDatabase.Refresh();
             }
             
             // Create subdir for variant
             if (!Directory.Exists(variantPath)) {
-                Debug.Log("Create directory for variant at: "+variantPath);
+                Debug.Log("[BV] Create directory for variant at: "+variantPath);
                 Directory.CreateDirectory(variantPath);
                 AssetDatabase.Refresh();
                 
                 // Set assetbundle info on variant subdir
                 AssetImporter importer = AssetImporter.GetAtPath(variantDir);
                 importer.SetAssetBundleNameAndVariant(bundleName, bundleVariant);
-                Debug.Log("Set AssetBundle name: "+bundleName+" and variant: "+bundleVariant+" on folder: "+variantDir);
+                Debug.Log("[BV] Set AssetBundle name: "+bundleName+" and variant: "+bundleVariant+" on folder: "+variantDir);
             }
 
             string[] assets = AssetDatabase.GetAssetPathsFromAssetBundle(bundleNames[i]);
-            Debug.Log("Got "+assets.Length+" assets for bundle: "+bundleNames[i]);
+            Debug.Log("[BV] Got "+assets.Length+" assets for bundle: "+bundleNames[i]);
             string[] newAssetPaths = new string[assets.Length];
             
             for (int a=0; a<assets.Length; ++a) {
@@ -216,7 +219,7 @@ public static class VariantsBuilder {
                 string[] assetParts = asset.Split('/');
                 string targetDir = variantDir + "/" + assetParts[assetParts.Length - 1];
                 newAssetPaths[a] = targetDir;
-                Debug.Log("Move: "+asset+" to: "+targetDir);
+                Debug.Log("[BV] Move: "+asset+" to: "+targetDir);
 //                AssetDatabase.CopyAsset(asset, targetDir);
                 AssetDatabase.MoveAsset(asset, targetDir);
                 AssetDatabase.Refresh();
@@ -226,7 +229,7 @@ public static class VariantsBuilder {
                 if (importer == null) {
                     continue;
                 }
-                Debug.Log("Clear AssetBundle info from "+targetDir);
+                Debug.Log("[BV] Clear AssetBundle info from "+targetDir);
                 importer.SetAssetBundleNameAndVariant(null, null);
             }
             
@@ -245,44 +248,44 @@ public static class VariantsBuilder {
 
             int variantIndex = Array.IndexOf(AssetBundleConfig.VARIANTS, bundleVariant);
             float masterScale = variantScales[variantIndex];
-            Debug.Log("Remove variant "+bundleVariant+" ("+variantIndex+") from variants lists");
+            Debug.Log("[BV] Remove variant "+bundleVariant+" ("+variantIndex+") from variants lists");
             variantScales.RemoveAt(variantIndex);
             resVariants.RemoveAt(variantIndex);
 
             for (int v = 0; v < resVariants.Count; ++v) {
                 string scaledVariant = resVariants[v];
-                Debug.Log("Scale from "+bundleVariant+" to "+scaledVariant);
+                Debug.Log("[BV] Scale from "+bundleVariant+" to "+scaledVariant);
                 // create res folder
                 string scaledVariantPath = bundlePath + "/" + scaledVariant;
                 
                 if (!Directory.Exists(scaledVariantPath)) {
-                    Debug.Log("Create directory for variant "+scaledVariant+" at: " + scaledVariantPath);
+                    Debug.Log("[BV] Create directory for variant "+scaledVariant+" at: " + scaledVariantPath);
                     Directory.CreateDirectory(scaledVariantPath);
                     AssetDatabase.Refresh();
                 }
                 
                 // add assetbundle info
                 string scaledVariantDir = "Assets" + scaledVariantPath.Substring(Application.dataPath.Length);
-                Debug.Log("Set "+scaledVariantDir+" AssetBundle to: "+bundleName+" and variant to: "+scaledVariant);
+                Debug.Log("[BV] Set "+scaledVariantDir+" AssetBundle to: "+bundleName+" and variant to: "+scaledVariant);
                 SetAssetBundleNameAndVariant(scaledVariantDir, bundleName, scaledVariant);
 
                 float scaleFactor = variantScales[v] / masterScale;
-                Debug.Log("Variant: "+scaledVariant+" Scale Factor: "+scaleFactor);
+                Debug.Log("[BV] Variant: "+scaledVariant+" Scale Factor: "+scaleFactor);
                 
                 // copy assets
                 foreach (string assetPath in newAssetPaths) {
                     string[] assetParts = assetPath.Split('/');
                     string assetName = assetParts[assetParts.Length - 1];
-                    Debug.Log("Copy: "+assetName+" to: "+scaledVariantDir + "/" + assetName);
+                    Debug.Log("[BV] Copy: "+assetName+" to: "+scaledVariantDir + "/" + assetName);
                     AssetDatabase.CopyAsset(assetPath, scaledVariantDir + "/" + assetName);
 
                     if (assetName.Length > 12 &&
                         assetName.Substring(assetName.Length - 12) == ".spriteatlas") {
                         
-                        Debug.Log("SPRITEATLAS");
+                        Debug.Log("[BV] SPRITEATLAS");
                         SpriteAtlas masterAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(assetPath);
                         SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(scaledVariantDir + "/" + assetName);
-                        Debug.Log("Atlas name: "+atlas.name);
+                        Debug.Log("[BV] Atlas name: "+atlas.name);
 
                         Assembly editorAssembly = Assembly.GetAssembly(typeof(Editor));
                         Type spriteAtlasExt = editorAssembly.GetType("UnityEditor.U2D.SpriteAtlasExtensions");
@@ -309,8 +312,8 @@ public static class VariantsBuilder {
                     AssetImporter importer = AssetImporter.GetAtPath(scaledVariantDir + "/" + assetName);
                     TextureImporter timporter = importer as TextureImporter;
                     if (timporter != null) {
-                        Debug.Log("TEXTURE");
-                        Debug.Log("maxsize: "+timporter.maxTextureSize+" >> "+(int)(timporter.maxTextureSize * scaleFactor));
+                        Debug.Log("[BV] TEXTURE");
+                        Debug.Log("[BV] maxsize: "+timporter.maxTextureSize+" >> "+(int)(timporter.maxTextureSize * scaleFactor));
                         timporter.maxTextureSize = (int)(timporter.maxTextureSize * scaleFactor);
                     }
                 }
@@ -320,7 +323,7 @@ public static class VariantsBuilder {
 //        AssetDatabase.StopAssetEditing();
         
         foreach (string variantPath in variantPathIndex) {
-            Debug.Log("Remove Asset Bundle info from: "+variantPath);
+            Debug.Log("[BV] Remove Asset Bundle info from: "+variantPath);
             AssetImporter importer = AssetImporter.GetAtPath(variantPath);
             importer.SetAssetBundleNameAndVariant(null, null);
         }
@@ -329,7 +332,7 @@ public static class VariantsBuilder {
     private static void SetAssetBundleNameAndVariant(string path, string name, string variant) {
         AssetImporter importer = AssetImporter.GetAtPath(path);
         if (importer == null) {
-            Debug.LogWarning("Cannot set AssetBundle name and variant for "+path+". Cannot get AssetImporter.");
+            Debug.LogWarning("[BV] Cannot set AssetBundle name and variant for "+path+". Cannot get AssetImporter.");
             return;
         }
         importer.SetAssetBundleNameAndVariant(name, variant);
