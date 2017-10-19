@@ -1,7 +1,18 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 using HyperGames.AssetBundles;
 using UnityEditor;
 using UnityEditorInternal;
+
+public class AssetBundleConfigCreate {
+
+    [MenuItem("GameObject/Create Other/Asset Bundle Config")]
+    public static void CreateConfig() {
+        AssetBundleConfig cfg = new AssetBundleConfig();
+        File.WriteAllText(Application.dataPath + "/AssetBundleConfig.json", JsonUtility.ToJson(cfg, true));
+        AssetDatabase.Refresh();
+    }
+}
 
 [CustomEditor(typeof(AssetBundleConfig))]
 public class AssetBundleConfigInspector : Editor {

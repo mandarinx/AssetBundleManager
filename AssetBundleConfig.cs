@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using UnityEditor;
-using UnityEngine;
 
 namespace HyperGames.AssetBundles {
     
@@ -31,13 +28,6 @@ namespace HyperGames.AssetBundles {
     
     [Serializable]
     public class AssetBundleConfig {
-
-        [MenuItem("GameObject/Create Other/Asset Bundle Config")]
-        public static void CreateConfig() {
-            AssetBundleConfig cfg = new AssetBundleConfig();
-            File.WriteAllText(Application.dataPath + "/AssetBundleConfig.json", JsonUtility.ToJson(cfg, true));
-            AssetDatabase.Refresh();
-        }
 
         public const string ONE_X     = "1x";
         public const string TWO_X     = "2x";
