@@ -82,7 +82,13 @@ public static class VariantsBuilder {
         const string configPath = "Assets/AssetBundleConfig.asset";
         string bundlesRoot = Application.dataPath + "/__BUNDLES__";
 
+        AssetDatabase.StartAssetEditing();
+
         // Load the AssetBundleConfig
+        Debug.Log("[BV] Does "+
+            Application.dataPath+"/"+configPath+
+            " exist? "+
+            (File.Exists(Application.dataPath+"/"+configPath) ? "Yes" : "No"));
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
         if (config == null) {
             Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
@@ -160,8 +166,6 @@ public static class VariantsBuilder {
             Debug.Log("[BV] Add variant dir to variantPathIndex. "+dir);
             variantPathIndex.Add(dir);
         }
-
-//        AssetDatabase.StartAssetEditing();
 
         // Get a list of all bundles
         string[] bundleNames = AssetDatabase.GetAllAssetBundleNames();
@@ -320,13 +324,13 @@ public static class VariantsBuilder {
             }
         }
 
-//        AssetDatabase.StopAssetEditing();
-        
         foreach (string variantPath in variantPathIndex) {
             Debug.Log("[BV] Remove Asset Bundle info from: "+variantPath);
             AssetImporter importer = AssetImporter.GetAtPath(variantPath);
             importer.SetAssetBundleNameAndVariant(null, null);
         }
+        
+        AssetDatabase.StopAssetEditing();
     }
 
     private static void SetAssetBundleNameAndVariant(string path, string name, string variant) {
