@@ -88,7 +88,7 @@ public static class VariantsBuilder {
         Debug.Log("[BV] Does "+
             Application.dataPath+"/"+configPath+
             " exist? "+
-            (File.Exists(Application.dataPath+"/"+configPath) ? "Yes" : "No"));
+            (File.Exists(Application.dataPath+"/AssetBundleConfig.asset") ? "Yes" : "No"));
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
         if (config == null) {
             Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
