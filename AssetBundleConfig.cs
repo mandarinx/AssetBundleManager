@@ -4,29 +4,6 @@ using UnityEngine;
 
 namespace HyperGames.AssetBundles {
     
-    [Serializable]
-    public enum AssetBundleTarget {
-        ASSET_BUNDLE_FOLDER = 1,
-        STREAMING_ASSETS = 2,
-        LOCAL_SERVER = 3,
-        REMOTE_SERVER = 4,
-        OBB = 5,
-        ON_DEMAND_RESOURCES = 6,
-        APP_SLICING = 7,
-    }
-
-    [Serializable]
-    public struct ResolutionVariant {
-        public string name;
-        public float maxDP;
-    }
-
-    public class ResolutionVariantComparer : Comparer<ResolutionVariant> {
-        public override int Compare(ResolutionVariant x, ResolutionVariant y) {
-            return x.maxDP.CompareTo(y.maxDP);
-        }
-    }
-    
     [CreateAssetMenu(menuName = "Asset Bundle Config", fileName = "AssetBundleConfig.asset")]
     [Serializable]
     public class AssetBundleConfig : ScriptableObject {

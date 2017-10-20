@@ -93,20 +93,26 @@ public static class VariantsBuilder {
         string[] configs = AssetDatabase.FindAssets("t:AssetBundleConfig");
         Debug.Log("[BV] Found "+configs.Length+" AssetBundleConfig files");
         foreach (string c in configs) {
-            Debug.Log("[BV] config: "+AssetDatabase.GUIDToAssetPath(c));
+            string cp = AssetDatabase.GUIDToAssetPath(c);
+            Debug.Log("[BV] config: "+cp);
+
+            AssetBundleConfig cfg = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(cp);
+            Debug.Log("[BV] "+(cfg != null ? "Could" : "Couldn't")+" LoadAssetAtPath<AssetBundleConfig> from " + cp);
+            AssetBundleConfig cfg2 = (AssetBundleConfig)AssetDatabase.LoadAssetAtPath(cp, typeof(AssetBundleConfig));
+            Debug.Log("[BV] "+(cfg2 != null ? "Could" : "Couldn't")+" LoadAssetAtPath typeof(AssetBundleConfig) from " + cp);
         }
 
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
-        if (config == null) {
-            Debug.Log("[BV] Cannot load<AssetBundleConfig> from " + configPath);
-//            return;
-        }
-
-        AssetBundleConfig config2 = (AssetBundleConfig)AssetDatabase.LoadAssetAtPath(configPath, typeof(AssetBundleConfig));
-        if (config2 == null) {
-            Debug.Log("[BV] Cannot load typeof(AssetBundleConfig) from " + configPath);
-//            return;
-        }
+//        if (config == null) {
+//            Debug.Log("[BV] Cannot load<AssetBundleConfig> from " + configPath);
+////            return;
+//        }
+//
+//        AssetBundleConfig config2 = (AssetBundleConfig)AssetDatabase.LoadAssetAtPath(configPath, typeof(AssetBundleConfig));
+//        if (config2 == null) {
+//            Debug.Log("[BV] Cannot load typeof(AssetBundleConfig) from " + configPath);
+////            return;
+//        }
         return;
 
         // Sort the resolution variants.
