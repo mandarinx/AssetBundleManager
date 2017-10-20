@@ -98,24 +98,14 @@ public static class VariantsBuilder {
 
         AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
         if (config == null) {
-            Debug.Log("[BV] Cannot load AssetBundleConfig from " + configPath);
+            Debug.Log("[BV] Cannot load<AssetBundleConfig> from " + configPath);
 //            return;
         }
 
-        AssetBundleConfig config2 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(Application.dataPath+"/AssetBundleConfig.asset");
+        AssetBundleConfig config2 = (AssetBundleConfig)AssetDatabase.LoadAssetAtPath(configPath, typeof(AssetBundleConfig));
         if (config2 == null) {
-            Debug.Log("[BV] Cannot load AssetBundleConfig from " + Application.dataPath+"/AssetBundleConfig.asset");
-        }
-
-        AssetBundleConfig config3 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>("Assets/Resources/AssetBundleConfig.asset");
-        if (config3 == null) {
-            Debug.Log("[BV] Cannot load AssetBundleConfig from " + "Assets/Resources/AssetBundleConfig.asset");
+            Debug.Log("[BV] Cannot load typeof(AssetBundleConfig) from " + configPath);
 //            return;
-        }
-
-        AssetBundleConfig config4 = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(Application.dataPath+"/Resources/AssetBundleConfig.asset");
-        if (config4 == null) {
-            Debug.Log("[BV] Cannot load AssetBundleConfig from " + Application.dataPath+"/Resources/AssetBundleConfig.asset");
         }
         return;
 
