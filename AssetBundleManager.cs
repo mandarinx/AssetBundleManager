@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
+using Tests.AssetBundles;
 using Debug = UnityEngine.Debug;
 
 namespace HyperGames.AssetBundles {
@@ -39,7 +40,6 @@ namespace HyperGames.AssetBundles {
                 OnInstantiate = () => new BundleLoadOperation(this)
             };
             loadOps.Fill();
-
             // check cfg.bundleTarget and start local server if necessary.
         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using HyperGames.AssetBundles;
+using Tests.AssetBundles;
 using UnityEditor;
 using UnityEditor.Sprites;
 using UnityEngine.U2D;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HyperGames.AssetBundles {
+namespace Tests.AssetBundles {
 
     [Serializable]
     public struct ResolutionVariant {

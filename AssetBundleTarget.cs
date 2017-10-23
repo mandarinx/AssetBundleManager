@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HyperGames.AssetBundles {
+namespace Tests.AssetBundles {
     
     [Serializable]
     public enum AssetBundleTarget {
