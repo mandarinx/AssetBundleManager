@@ -14,7 +14,7 @@ namespace HyperGames.AssetBundles {
         private readonly AssetBundleCache                    cache;
         private readonly ObjectPool<BundleLoadOperation>     loadOps;
         private readonly BundleManagerUpdate                 updater;
-        private readonly AssetBundleConfig                   config;
+        private readonly AssetBundleConfiguration            config;
         private readonly List<Coroutine>                     streams;
         private int                                          freeStreams;
         private readonly Dictionary<string, Action<string>>  loadHandlers;
@@ -23,7 +23,7 @@ namespace HyperGames.AssetBundles {
         private Action<List<string>>                         onLoadBundles = str => { };
         private Func<string, string>                         onLoadBundle = str => str;
         
-        public AssetBundleManager(AssetBundleConfig cfg, GameObject owner) {
+        public AssetBundleManager(AssetBundleConfiguration cfg, GameObject owner) {
             config = cfg;
             freeStreams = config.numBundleLoaders;
             
@@ -90,6 +90,12 @@ namespace HyperGames.AssetBundles {
             loadHandlers.Add(bundleName, OnMasterManifestLoaded);
             BundleLoadOperation loadOp = AddLoadOp(bundleName);
             return new AssetBundleLoadStatus(loadOp);
+        }
+
+        public string[] GetManifestBundles() {
+            return manifest == null 
+                ? null 
+                : manifest.GetAllAssetBundles();
         }
         
         public AssetBundleLoadStatus LoadBundle(string bundleName) {

@@ -96,13 +96,13 @@ public static class VariantsBuilder {
             string cp = AssetDatabase.GUIDToAssetPath(c);
             Debug.Log("[BV] config: "+cp);
 
-            AssetBundleConfig cfg = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(cp);
+            AssetBundleConfiguration cfg = AssetDatabase.LoadAssetAtPath<AssetBundleConfiguration>(cp);
             Debug.Log("[BV] "+(cfg != null ? "Could" : "Couldn't")+" LoadAssetAtPath<AssetBundleConfig> from " + cp);
-            AssetBundleConfig cfg2 = (AssetBundleConfig)AssetDatabase.LoadAssetAtPath(cp, typeof(AssetBundleConfig));
+            AssetBundleConfiguration cfg2 = (AssetBundleConfiguration)AssetDatabase.LoadAssetAtPath(cp, typeof(AssetBundleConfiguration));
             Debug.Log("[BV] "+(cfg2 != null ? "Could" : "Couldn't")+" LoadAssetAtPath typeof(AssetBundleConfig) from " + cp);
         }
 
-        AssetBundleConfig config = AssetDatabase.LoadAssetAtPath<AssetBundleConfig>(configPath);
+        AssetBundleConfiguration configuration = AssetDatabase.LoadAssetAtPath<AssetBundleConfiguration>(configPath);
 //        if (config == null) {
 //            Debug.Log("[BV] Cannot load<AssetBundleConfig> from " + configPath);
 ////            return;
@@ -117,7 +117,7 @@ public static class VariantsBuilder {
 
         // Sort the resolution variants.
         // It doesn't matter if they are sorted in the asset, they should be anyway.
-        config.resolutionVariants.Sort(new ResolutionVariantComparer());
+        configuration.resolutionVariants.Sort(new ResolutionVariantComparer());
 
         // Validate defined resolutionVariants with asset bundles
         Debug.Log("[BV] Validate resolutionVariants");
@@ -132,7 +132,7 @@ public static class VariantsBuilder {
             Debug.Log("[BV] Variant: "+variant);
             
             bool found = false;
-            foreach (ResolutionVariant rv in config.resolutionVariants) {
+            foreach (ResolutionVariant rv in configuration.resolutionVariants) {
                 found |= rv.name == variant;
             }
             Debug.Log("[BV] Found variant? "+found);
@@ -178,7 +178,7 @@ public static class VariantsBuilder {
                 continue;
             }
             
-            if (Array.IndexOf(AssetBundleConfig.VARIANTS, importer.assetBundleVariant) < 0) {
+            if (Array.IndexOf(AssetBundleConfiguration.VARIANTS, importer.assetBundleVariant) < 0) {
                 // variant is not a res variant
                 continue;
             }
@@ -198,7 +198,7 @@ public static class VariantsBuilder {
             }
 
             string bundleVariant = nameParts[nameParts.Length - 1];
-            if (Array.IndexOf(AssetBundleConfig.VARIANTS, bundleVariant) < 0) {
+            if (Array.IndexOf(AssetBundleConfiguration.VARIANTS, bundleVariant) < 0) {
                 // variant is not a res variant
                 // TODO: Use plugin system for handling other variants
                 continue;
@@ -260,17 +260,17 @@ public static class VariantsBuilder {
             // Scale variants
 
             List<string> resVariants = new List<string>();
-            for (int r = 0; r < config.resolutionVariants.Count; ++r) {
-                resVariants.Add(config.resolutionVariants[r].name);
+            for (int r = 0; r < configuration.resolutionVariants.Count; ++r) {
+                resVariants.Add(configuration.resolutionVariants[r].name);
             }
             
             List<int> variantScales = new List<int>();
             for (int s = 0; s < resVariants.Count; ++s) {
-                int si = Array.IndexOf(AssetBundleConfig.VARIANTS, resVariants[s]);
+                int si = Array.IndexOf(AssetBundleConfiguration.VARIANTS, resVariants[s]);
                 variantScales.Add((int)Mathf.Pow(2, si));
             }
 
-            int variantIndex = Array.IndexOf(AssetBundleConfig.VARIANTS, bundleVariant);
+            int variantIndex = Array.IndexOf(AssetBundleConfiguration.VARIANTS, bundleVariant);
             float masterScale = variantScales[variantIndex];
             Debug.Log("[BV] Remove variant "+bundleVariant+" ("+variantIndex+") from variants lists");
             variantScales.RemoveAt(variantIndex);

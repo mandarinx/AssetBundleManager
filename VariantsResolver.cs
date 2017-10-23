@@ -17,9 +17,9 @@ namespace HyperGames.AssetBundles {
         private readonly Dictionary<string, Func<string>>    variantRemappers;
         private readonly Dictionary<string, Func<string>>    variantMap;
 
-        private readonly AssetBundleConfig config;
+        private readonly AssetBundleConfiguration config;
         
-        public VariantsResolver(AssetBundleConfig cfg) {
+        public VariantsResolver(AssetBundleConfiguration cfg) {
             config = cfg;
             cfg.resolutionVariants.Sort(new ResolutionVariantComparer());
             variantRemappers = new Dictionary<string, Func<string>>();

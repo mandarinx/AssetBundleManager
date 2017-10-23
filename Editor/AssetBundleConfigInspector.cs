@@ -4,7 +4,7 @@ using Tests.AssetBundles;
 using UnityEditor;
 using UnityEditorInternal;
 
-[CustomEditor(typeof(AssetBundleConfig))]
+[CustomEditor(typeof(AssetBundleConfiguration))]
 public class AssetBundleConfigInspector : Editor {
 
     private bool showScreenResHelp = false;
@@ -80,8 +80,8 @@ public class AssetBundleConfigInspector : Editor {
                 "DP - Density Indenpendent Pixels"+
                 "\n\n"+
                 "DP is an abstract unit based on the physical density of the screen. "+
-                "DP is relative to a screen of "+AssetBundleConfig.defaultBaseDPI+" DPI. "+
-                "One DP is one physical pixel on a "+AssetBundleConfig.defaultBaseDPI+" "+
+                "DP is relative to a screen of "+AssetBundleConfiguration.defaultBaseDPI+" DPI. "+
+                "One DP is one physical pixel on a "+AssetBundleConfiguration.defaultBaseDPI+" "+
                 "DPI screen. Using DP helps to normalize the relationship between screen "+
                 "DPI, size and resolution."+
                 "\n\n"+
@@ -103,7 +103,7 @@ public class AssetBundleConfigInspector : Editor {
             EditorGUILayout.PropertyField(baseDPI);
 
             if (GUILayout.Button("Reset", btnMini)) {
-                baseDPI.intValue = AssetBundleConfig.defaultBaseDPI;
+                baseDPI.intValue = AssetBundleConfiguration.defaultBaseDPI;
             }
         }
         EditorGUILayout.EndHorizontal();

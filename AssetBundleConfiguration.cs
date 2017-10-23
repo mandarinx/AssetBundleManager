@@ -6,7 +6,7 @@ namespace Tests.AssetBundles {
     
     [CreateAssetMenu(menuName = "Asset Bundle Config", fileName = "AssetBundleConfig.asset")]
     [Serializable]
-    public class AssetBundleConfig : ScriptableObject {
+    public class AssetBundleConfiguration : ScriptableObject {
 
         public const string ONE_X     = "1x";
         public const string TWO_X     = "2x";
