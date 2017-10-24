@@ -5,7 +5,7 @@ using System.Reflection;
 using HyperGames.AssetBundles;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.Sprites;
+using HyperGames.AssetBundles.Config;
 using UnityEngine.U2D;
 using Object = UnityEngine.Object;
 

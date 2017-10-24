@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HyperGames.AssetBundles {
+namespace HyperGames.AssetBundles.Config {
     
     [CreateAssetMenu(menuName = "A", fileName = "A.asset")]
     [Serializable]
