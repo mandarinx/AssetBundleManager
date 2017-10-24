@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Tests.AssetBundles;
 using UnityEngine;
 
 namespace HyperGames.AssetBundles {
@@ -11,15 +9,15 @@ namespace HyperGames.AssetBundles {
     // Made partial so that you can append game specific custom code to it without
     // having to add yet another class to the namespace
     
-    public partial class VariantsResolver {
+    public class VariantsResolver {
 
         //private readonly StringBuilder sbResolution = new StringBuilder();
         private readonly Dictionary<string, Func<string>>    variantRemappers;
         private readonly Dictionary<string, Func<string>>    variantMap;
 
-        private readonly AssetBundleConfiguration config;
+        private readonly AssetBundleManagerConfig config;
         
-        public VariantsResolver(AssetBundleConfiguration cfg) {
+        public VariantsResolver(AssetBundleManagerConfig cfg) {
             config = cfg;
             cfg.resolutionVariants.Sort(new ResolutionVariantComparer());
             variantRemappers = new Dictionary<string, Func<string>>();
@@ -74,6 +72,22 @@ namespace HyperGames.AssetBundles {
 //            }
             
             for (int i = 0; i < bundleNames.Count; ++i) {
+                bundleNames[i] = RemapVariant(bundleNames[i]);
+            }
+
+//            Debug.Log("After remapping:");
+//            for (int i = 0; i < bundleNames.Count; ++i) {
+//                Debug.Log(bundleNames[i]);
+//            }
+        }
+
+        public void RemapVariants(string[] bundleNames) {
+//            Debug.Log("Before remapping:");
+//            for (int i = 0; i < bundleNames.Count; ++i) {
+//                Debug.Log(bundleNames[i]);
+//            }
+            
+            for (int i = 0; i < bundleNames.Length; ++i) {
                 bundleNames[i] = RemapVariant(bundleNames[i]);
             }
 

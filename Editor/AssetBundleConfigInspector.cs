@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using HyperGames.AssetBundles;
-using Tests.AssetBundles;
 using UnityEditor;
 using UnityEditorInternal;
 
-[CustomEditor(typeof(AssetBundleConfiguration))]
+[CustomEditor(typeof(AssetBundleManagerConfig))]
 public class AssetBundleConfigInspector : Editor {
 
     private bool showScreenResHelp = false;
@@ -80,8 +79,8 @@ public class AssetBundleConfigInspector : Editor {
                 "DP - Density Indenpendent Pixels"+
                 "\n\n"+
                 "DP is an abstract unit based on the physical density of the screen. "+
-                "DP is relative to a screen of "+AssetBundleConfiguration.defaultBaseDPI+" DPI. "+
-                "One DP is one physical pixel on a "+AssetBundleConfiguration.defaultBaseDPI+" "+
+                "DP is relative to a screen of "+AssetBundleManagerConfig.defaultBaseDPI+" DPI. "+
+                "One DP is one physical pixel on a "+AssetBundleManagerConfig.defaultBaseDPI+" "+
                 "DPI screen. Using DP helps to normalize the relationship between screen "+
                 "DPI, size and resolution."+
                 "\n\n"+
@@ -103,7 +102,7 @@ public class AssetBundleConfigInspector : Editor {
             EditorGUILayout.PropertyField(baseDPI);
 
             if (GUILayout.Button("Reset", btnMini)) {
-                baseDPI.intValue = AssetBundleConfiguration.defaultBaseDPI;
+                baseDPI.intValue = AssetBundleManagerConfig.defaultBaseDPI;
             }
         }
         EditorGUILayout.EndHorizontal();

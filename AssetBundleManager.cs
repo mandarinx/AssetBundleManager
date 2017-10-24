@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
-using Tests.AssetBundles;
 using Debug = UnityEngine.Debug;
 
 namespace HyperGames.AssetBundles {
@@ -14,7 +12,7 @@ namespace HyperGames.AssetBundles {
         private readonly AssetBundleCache                    cache;
         private readonly ObjectPool<BundleLoadOperation>     loadOps;
         private readonly BundleManagerUpdate                 updater;
-        private readonly AssetBundleConfiguration            config;
+        private readonly AssetBundleManagerConfig            config;
         private readonly List<Coroutine>                     streams;
         private int                                          freeStreams;
         private readonly Dictionary<string, Action<string>>  loadHandlers;
@@ -23,7 +21,7 @@ namespace HyperGames.AssetBundles {
         private Action<List<string>>                         onLoadBundles = str => { };
         private Func<string, string>                         onLoadBundle = str => str;
         
-        public AssetBundleManager(AssetBundleConfiguration cfg, GameObject owner) {
+        public AssetBundleManager(AssetBundleManagerConfig cfg, GameObject owner) {
             config = cfg;
             freeStreams = config.numBundleLoaders;
             
@@ -183,14 +181,14 @@ namespace HyperGames.AssetBundles {
                 bundleList += bundles[i] + "\n";
             }
             
-            Debug.Log("Spawned LoadOp with bundles:\n"+bundleList);
+            Debug.Log("[ABM] Spawned LoadOp with bundles:\n"+bundleList);
             
             updater.Activate();
             return op;
         }
 
         private void OnMasterManifestLoaded(string bundleName) {
-            Debug.Log("OnMasterManifestLoaded");
+            Debug.Log("[ABM] OnMasterManifestLoaded");
             loadHandlers.Remove(bundleName);
             AssetBundle bundle;
             cache.TryGetBundle(bundleName, out bundle);

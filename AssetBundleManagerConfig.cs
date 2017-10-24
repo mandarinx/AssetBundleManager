@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tests.AssetBundles {
+namespace HyperGames.AssetBundles {
     
-    [CreateAssetMenu(menuName = "Asset Bundle Config", fileName = "AssetBundleConfig.asset")]
+    [CreateAssetMenu(menuName = "Asset Bundle Manager Config", fileName = "AssetBundleManagerConfig.asset")]
     [Serializable]
-    public class AssetBundleConfiguration : ScriptableObject {
+    public class AssetBundleManagerConfig : ScriptableObject {
 
         public const string ONE_X     = "1x";
         public const string TWO_X     = "2x";

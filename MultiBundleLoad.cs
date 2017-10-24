@@ -21,27 +21,48 @@ namespace HyperGames.AssetBundles {
             }
         }
 
-        public MultiBundleLoad(AssetBundleManager manager, string[] bundles) {
+        public MultiBundleLoad(AssetBundleManager manager, VariantsResolver variants, string[] bundles) {
+            
+            Debug.Log("[MBL] Load multiple bundles");
+//            for (int i = 0; i < bundles.Length; ++i) {
+//                Debug.Log("[MBL] Bundle: "+bundles[i]);
+//            }
+            
+            variants.RemapVariants(bundles);
+            
             List<string> uniqueBundles = new List<string>();
-
+            
             for (int i = 0; i < bundles.Length; ++i) {
-                string[] nameParts = bundles[i].Split('.');
-                if (!uniqueBundles.Contains(nameParts[0])) {
-                    uniqueBundles.Add(nameParts[0]);
+                if (!uniqueBundles.Contains(bundles[i])) {
+                    uniqueBundles.Add(bundles[i]);
                 }
             }
-            
-            loadStatuses = new AssetBundleLoadStatus[uniqueBundles.Count];
 
-            Debug.Log("[[[MultiBundleLoad]]]");
-            
             for (int i = 0; i < uniqueBundles.Count; ++i) {
-                Debug.Log(uniqueBundles[i]);
+                Debug.Log("[MBL] Bundle: "+uniqueBundles[i]);
             }
+
+            loadStatuses = new AssetBundleLoadStatus[uniqueBundles.Count];
             
             for (int i = 0; i < uniqueBundles.Count; ++i) {
                 loadStatuses[i] = manager.LoadBundle(uniqueBundles[i]);
             }
+
+            //--
+
+//
+//            
+//            loadStatuses = new AssetBundleLoadStatus[uniqueBundles.Count];
+//
+//            Debug.Log("[[[MultiBundleLoad]]]");
+//            
+//            for (int i = 0; i < uniqueBundles.Count; ++i) {
+//                Debug.Log(uniqueBundles[i]);
+//            }
+//            
+//            for (int i = 0; i < uniqueBundles.Count; ++i) {
+//                loadStatuses[i] = manager.LoadBundle(uniqueBundles[i]);
+//            }
         }
     }
 }

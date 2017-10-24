@@ -61,6 +61,7 @@ namespace HyperGames.AssetBundles {
             AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(path + bundleName);
 
             while (!request.isDone) {
+                Debug.Log("[TransportFromFile] progress: "+op.progress);
                 op.SetCurrentBundleProgress(op.progress);
 
                 if (request.assetBundle == null) {

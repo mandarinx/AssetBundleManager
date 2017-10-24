@@ -1,5 +1,4 @@
 ﻿using System;
-using Tests.AssetBundles;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -10,7 +9,7 @@ namespace HyperGames.AssetBundles {
     
     public static class BundlesHelper {
 
-        public static string GetPath(AssetBundleConfiguration cfg, string platform) {
+        public static string GetPath(AssetBundleManagerConfig cfg, string platform) {
             switch (cfg.bundleTarget) {
                 case AssetBundleTarget.ASSET_BUNDLE_FOLDER:
                     return Application.dataPath.Replace("Assets", "") + cfg.bundlesFolder + "/" + platform + "/";
@@ -38,7 +37,7 @@ namespace HyperGames.AssetBundles {
             }
         }
 
-        public static ITransporter GetTransporter(AssetBundleConfiguration cfg) {
+        public static ITransporter GetTransporter(AssetBundleManagerConfig cfg) {
             ITransporter transporter = null;
 
             switch (cfg.bundleTarget) {

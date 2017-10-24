@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using HyperGames.AssetBundles;
 using UnityEngine;
-using Tests.AssetBundles;
 using UnityEditor;
 using UnityEditor.Sprites;
 using UnityEngine.U2D;
@@ -96,13 +96,13 @@ public static class VariantsBuilder {
             string cp = AssetDatabase.GUIDToAssetPath(c);
             Debug.Log("[BV] config: "+cp);
 
-            AssetBundleConfiguration cfg = AssetDatabase.LoadAssetAtPath<AssetBundleConfiguration>(cp);
+            AssetBundleManagerConfig cfg = AssetDatabase.LoadAssetAtPath<AssetBundleManagerConfig>(cp);
             Debug.Log("[BV] "+(cfg != null ? "Could" : "Couldn't")+" LoadAssetAtPath<AssetBundleConfig> from " + cp);
-            AssetBundleConfiguration cfg2 = (AssetBundleConfiguration)AssetDatabase.LoadAssetAtPath(cp, typeof(AssetBundleConfiguration));
+            AssetBundleManagerConfig cfg2 = (AssetBundleManagerConfig)AssetDatabase.LoadAssetAtPath(cp, typeof(AssetBundleManagerConfig));
             Debug.Log("[BV] "+(cfg2 != null ? "Could" : "Couldn't")+" LoadAssetAtPath typeof(AssetBundleConfig) from " + cp);
         }
 
-        AssetBundleConfiguration configuration = AssetDatabase.LoadAssetAtPath<AssetBundleConfiguration>(configPath);
+        AssetBundleManagerConfig configuration = AssetDatabase.LoadAssetAtPath<AssetBundleManagerConfig>(configPath);
 //        if (config == null) {
 //            Debug.Log("[BV] Cannot load<AssetBundleConfig> from " + configPath);
 ////            return;
@@ -178,7 +178,7 @@ public static class VariantsBuilder {
                 continue;
             }
             
-            if (Array.IndexOf(AssetBundleConfiguration.VARIANTS, importer.assetBundleVariant) < 0) {
+            if (Array.IndexOf(AssetBundleManagerConfig.VARIANTS, importer.assetBundleVariant) < 0) {
                 // variant is not a res variant
                 continue;
             }
@@ -198,7 +198,7 @@ public static class VariantsBuilder {
             }
 
             string bundleVariant = nameParts[nameParts.Length - 1];
-            if (Array.IndexOf(AssetBundleConfiguration.VARIANTS, bundleVariant) < 0) {
+            if (Array.IndexOf(AssetBundleManagerConfig.VARIANTS, bundleVariant) < 0) {
                 // variant is not a res variant
                 // TODO: Use plugin system for handling other variants
                 continue;
@@ -266,11 +266,11 @@ public static class VariantsBuilder {
             
             List<int> variantScales = new List<int>();
             for (int s = 0; s < resVariants.Count; ++s) {
-                int si = Array.IndexOf(AssetBundleConfiguration.VARIANTS, resVariants[s]);
+                int si = Array.IndexOf(AssetBundleManagerConfig.VARIANTS, resVariants[s]);
                 variantScales.Add((int)Mathf.Pow(2, si));
             }
 
-            int variantIndex = Array.IndexOf(AssetBundleConfiguration.VARIANTS, bundleVariant);
+            int variantIndex = Array.IndexOf(AssetBundleManagerConfig.VARIANTS, bundleVariant);
             float masterScale = variantScales[variantIndex];
             Debug.Log("[BV] Remove variant "+bundleVariant+" ("+variantIndex+") from variants lists");
             variantScales.RemoveAt(variantIndex);
