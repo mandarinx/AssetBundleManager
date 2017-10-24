@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using HyperGames.AssetBundles.Config;
+using HyperGames.AssetBundles;
 using UnityEditor;
 using UnityEditorInternal;
 
