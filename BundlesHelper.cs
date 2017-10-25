@@ -43,7 +43,7 @@ namespace HyperGames.AssetBundles {
             switch (cfg.bundleTarget) {
                 case AssetBundleTarget.ASSET_BUNDLE_FOLDER:
                 case AssetBundleTarget.STREAMING_ASSETS:
-                    transporter = new TransportFromFile();
+                    transporter = new TransportFromDisk();
                     break;
 
                 case AssetBundleTarget.LOCAL_SERVER:
