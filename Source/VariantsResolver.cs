@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HyperGames.AssetBundles.Config;
 using UnityEngine;
 
 namespace HyperGames.AssetBundles {

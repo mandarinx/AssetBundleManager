@@ -1,4 +1,5 @@
 ﻿using System;
+using HyperGames.AssetBundles.Config;
 using UnityEngine;
 
 #if UNITY_EDITOR
