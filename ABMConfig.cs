@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using HyperGames.AssetBundles;
 
-namespace HyperGames.AssetBundles {
+namespace ABM {
     
     [CreateAssetMenu(menuName = "ABM Config", fileName = "ABMConfig.asset")]
     [Serializable]
